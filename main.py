@@ -23,7 +23,7 @@ def _genetal_iterativ_method(A, b, x0, M, N, max_iterations=9999999, sig=1e-2):
     curr_iter = 0
     while curr_iter < max_iterations:
         curr_x = inv_M @ (b - N @ last_x)
-        c = np.linalg.norm(A@curr_x-b,2) / np.linalg.norm(A@last_x-b,2)
+        c = np.linalg.norm(A@curr_x-b,2) / np.linalg.norm(b,2)
         print(c)
         if c < sig:
             return curr_x
@@ -39,7 +39,7 @@ def Jacobi(A, b, x0, mex_iterations=100):
 
     return _genetal_iterativ_method(A, b, x0, D, L + U, mex_iterations,sig=1)
 
-def Gauss_seidel(A, b, x0, mex_iterations=100):
+def Gauss_seidel(A, b, x0, mex_iterations=300):
     D = np.diag(np.diag(A))
     U = np.triu(A)-D
     L = np.tril(A)-D
