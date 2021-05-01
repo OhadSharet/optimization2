@@ -7,23 +7,25 @@ def ex1():
     print("lets go")
 
 
-def _genetal_iterativ_method(A, b, x0, M, N, max_iterations=9999999, sig=1e-2):
-    '''
+def _genetal_iterativ_method(A, b, x0, M, N, max_iterations=9999999, sig=1e-2, w=1.0):
+    """
     Ax = b , we need to find x
     :param A:matrix in R^(n*n) A=N+M
     :param b: the solotion
     :param x0:first guess
     :param M: matrix in R^(n*n) A=N+M
     :param N: matrix in R^(n*n) A=N+M
+    :param max_iterations: max_iterations
+    :param sig: algorithm stops when the delta is smaller the sig
     :return: xk as the solution
-    '''
+    """
 
     last_x = x0
     inv_M = np.linalg.inv(M)
     curr_iter = 0
     while curr_iter < max_iterations:
-        curr_x = inv_M @ (b - N @ last_x)
-        c = np.linalg.norm(A@curr_x-b,2) / np.linalg.norm(b,2)
+        curr_x = (1-w)*last_x + (w * inv_M) @ (b - N @ last_x)
+        c = np.linalg.norm(A @ curr_x - b, 2) / np.linalg.norm(b, 2)
         print(c)
         if c < sig:
             return curr_x
@@ -34,17 +36,18 @@ def _genetal_iterativ_method(A, b, x0, M, N, max_iterations=9999999, sig=1e-2):
 
 def Jacobi(A, b, x0, mex_iterations=100):
     D = np.diag(np.diag(A))
-    U = np.triu(A)-D
-    L = np.tril(A)-D
+    U = np.triu(A) - D
+    L = np.tril(A) - D
 
-    return _genetal_iterativ_method(A, b, x0, D, L + U, mex_iterations,sig=1)
+    return _genetal_iterativ_method(A, b, x0, D, L + U, mex_iterations, sig=1e-3, w=0.35)
+
 
 def Gauss_seidel(A, b, x0, mex_iterations=300):
     D = np.diag(np.diag(A))
-    U = np.triu(A)-D
-    L = np.tril(A)-D
+    U = np.triu(A) - D
+    L = np.tril(A) - D
 
-    return _genetal_iterativ_method(A, b, x0, D+L, U, mex_iterations,sig=1e-2)
+    return _genetal_iterativ_method(A, b, x0, D + L, U, mex_iterations, sig=1e-2)
 
 
 def _generate_matrix(n=256):
@@ -58,14 +61,15 @@ def test_Jacobi():
     n = 256
     b = np.random.rand(n)
     A = _generate_matrix(n)
-    x_ans = Jacobi(A.toarray(), b , np.zeros(n))
+    x_ans = Jacobi(A.toarray(), b, np.zeros(n))
     print(x_ans)
+
 
 def test_Gauss_seidel():
     n = 256
     b = np.random.rand(n)
     A = _generate_matrix(n)
-    x_ans = Gauss_seidel(A.toarray(), b , np.zeros(n))
+    x_ans = Gauss_seidel(A.toarray(), b, np.zeros(n))
     print(x_ans)
 
 
