@@ -10,14 +10,14 @@ def ex1():
 def _general_iterative_method(A, b, x0, M, N, max_iterations=9999999, sig=1e-2, w=1.0):
     """
     Ax = b , we need to find x
-    :param A:matrix in R^(n*n) A=N+M
+    :param A: matrix in R^(n*n) A=N+M
     :param b: the solution
-    :param x0:first guess
+    :param x0: first guess
     :param M: matrix in R^(n*n) A=N+M
     :param N: matrix in R^(n*n) A=N+M
     :param max_iterations: max_iterations
     :param sig: algorithm stops when the delta is smaller the sig
-    :return: xk as the solution
+    :return: x^k as the solution
     """
 
     last_x = x0
@@ -42,7 +42,7 @@ def Jacobi(A, b, x0, mex_iterations=100):
     return _general_iterative_method(A, b, x0, D, L + U, mex_iterations, sig=1e-3, w=0.35)
 
 
-def Gauss_seidel(A, b, x0, mex_iterations=300):
+def Gauss_Seidel(A, b, x0, mex_iterations=300):
     D = np.diag(np.diag(A))
     U = np.triu(A) - D
     L = np.tril(A) - D
@@ -65,13 +65,21 @@ def test_Jacobi():
     print(x_ans)
 
 
-def test_Gauss_seidel():
+def test_Gauss_Seidel():
     n = 256
     b = np.random.rand(n)
     A = _generate_matrix(n)
-    x_ans = Gauss_seidel(A.toarray(), b, np.zeros(n))
+    x_ans = Gauss_Seidel(A.toarray(), b, np.zeros(n))
     print(x_ans)
 
 
+def ex2():
+    n = 256
+    A = random(n, n, 5/n, dtype=float)
+    v = np.random.rand(n)
+    v = sparse.spdiags(v, 0, v.shape[0], v.shape[0], 'csr')
+    A = A.transpose() * v * A + 0.1 * sparse.eye(n)
+
+
 if __name__ == "__main__":
-    test_Gauss_seidel()
+    test_Gauss_Seidel()
