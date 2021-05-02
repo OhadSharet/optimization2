@@ -7,11 +7,11 @@ def ex1():
     print("lets go")
 
 
-def _genetal_iterativ_method(A, b, x0, M, N, max_iterations=9999999, sig=1e-2, w=1.0):
+def _general_iterative_method(A, b, x0, M, N, max_iterations=9999999, sig=1e-2, w=1.0):
     """
     Ax = b , we need to find x
     :param A:matrix in R^(n*n) A=N+M
-    :param b: the solotion
+    :param b: the solution
     :param x0:first guess
     :param M: matrix in R^(n*n) A=N+M
     :param N: matrix in R^(n*n) A=N+M
@@ -39,7 +39,7 @@ def Jacobi(A, b, x0, mex_iterations=100):
     U = np.triu(A) - D
     L = np.tril(A) - D
 
-    return _genetal_iterativ_method(A, b, x0, D, L + U, mex_iterations, sig=1e-3, w=0.35)
+    return _general_iterative_method(A, b, x0, D, L + U, mex_iterations, sig=1e-3, w=0.35)
 
 
 def Gauss_seidel(A, b, x0, mex_iterations=300):
@@ -47,7 +47,7 @@ def Gauss_seidel(A, b, x0, mex_iterations=300):
     U = np.triu(A) - D
     L = np.tril(A) - D
 
-    return _genetal_iterativ_method(A, b, x0, D + L, U, mex_iterations, sig=1e-2)
+    return _general_iterative_method(A, b, x0, D + L, U, mex_iterations, sig=1e-2)
 
 
 def _generate_matrix(n=256):
