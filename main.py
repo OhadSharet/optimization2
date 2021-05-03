@@ -11,7 +11,7 @@ def ex1b():
     A = A.transpose() * v * A + 0.1 * sparse.eye(n)
 
 
-def _General_Iterative_Method(A, b, x0, M, N, max_iterations=9999999, sig=1e-2, w=1.0):
+def _General_Iterative_Method(A, b, x0, M, N, max_iterations=9999999, sigma=1e-2, w=1.0):
     """
     Ax = b , we need to find x
     :param A: matrix in R^(n*n) A=N+M
@@ -20,7 +20,7 @@ def _General_Iterative_Method(A, b, x0, M, N, max_iterations=9999999, sig=1e-2, 
     :param M: matrix in R^(n*n) A=N+M
     :param N: matrix in R^(n*n) A=N+M
     :param max_iterations: max_iterations
-    :param sig: algorithm stops when the delta is smaller the sig
+    :param sigma: algorithm stops when the delta is smaller the sigma
     :return: x^k as the solution
     """
 
@@ -31,37 +31,37 @@ def _General_Iterative_Method(A, b, x0, M, N, max_iterations=9999999, sig=1e-2, 
         curr_x = (1-w)*last_x + (w * inv_M) @ (b - N @ last_x)
         c = np.linalg.norm(A @ curr_x - b, 2) / np.linalg.norm(b, 2)
         print(c)
-        if c < sig:
+        if c < sigma:
             return curr_x
         last_x = curr_x
         curr_iter += 1
     return "failed"
 
 
-def Jacobi(A, b, x0, max_iterations=100):
+def Jacobi(A, b, x0, max_iterations=100, sigma=1e-3, w=0.35):
     D = np.diag(np.diag(A))
     U = np.triu(A) - D
     L = np.tril(A) - D
 
-    return _General_Iterative_Method(A, b, x0, D, L + U, max_iterations, sig=1e-3, w=0.35)
+    return _General_Iterative_Method(A, b, x0, D, L + U, max_iterations, sigma, w)
 
 
-def Gauss_Seidel(A, b, x0, max_iterations=300):
+def Gauss_Seidel(A, b, x0, max_iterations=300, sigma=1e-2):
     D = np.diag(np.diag(A))
     U = np.triu(A) - D
     L = np.tril(A) - D
 
-    return _General_Iterative_Method(A, b, x0, D + L, U, max_iterations, sig=1e-2)
+    return _General_Iterative_Method(A, b, x0, D + L, U, max_iterations, sigma)
 
 
-def Steepest_Descent(A, b, x0, max_iterations=9999999, sig=1e-2):
+def Steepest_Descent(A, b, x0, max_iterations=9999999, sigma=1e-2):
     """
     Ax = b , we need to find x
     :param A: matrix in R^(n*n) SPD
     :param b: the solution
     :param x0: first guess
     :param max_iterations: max_iterations
-    :param sig: algorithm stops when the delta is smaller the sig
+    :param sigma: algorithm stops when the delta is smaller the sigma
     :return: x^k as the solution
     """
 
@@ -75,7 +75,7 @@ def Steepest_Descent(A, b, x0, max_iterations=9999999, sig=1e-2):
         curr_r = last_r - alpha * Ar
         c = np.linalg.norm(A @ curr_x - b, 2) / np.linalg.norm(b, 2)
         print(c)
-        if c < sig:
+        if c < sigma:
             return curr_x
         last_x = curr_x
         last_r = curr_r
@@ -83,14 +83,14 @@ def Steepest_Descent(A, b, x0, max_iterations=9999999, sig=1e-2):
     return "failed"
 
 
-def Conjugate_Gradient(A, b, x0, max_iterations=9999999, sig=1e-2):
+def Conjugate_Gradient(A, b, x0, max_iterations=9999999, sigma=1e-2):
     """
     Ax = b , we need to find x
     :param A: matrix in R^(n*n) SPD
     :param b: the solution
     :param x0: first guess
     :param max_iterations: max_iterations
-    :param sig: algorithm stops when the delta is smaller the sig
+    :param sigma: algorithm stops when the delta is smaller the sigma
     :return: x^k as the solution
     """
 
@@ -105,7 +105,7 @@ def Conjugate_Gradient(A, b, x0, max_iterations=9999999, sig=1e-2):
         curr_r = last_r - alpha * Ap
         c = np.linalg.norm(A @ curr_x - b, 2) / np.linalg.norm(b, 2)
         print(c)
-        if c < sig:
+        if c < sigma:
             return curr_x
         beta = (curr_r.transpose() @ curr_r) / (last_r.transpose() @ last_r)
         last_p = curr_r + beta * last_p
@@ -207,22 +207,24 @@ def ex4a():
                   [-1],
                   [1],
                   [-1]])
-    x = Jacobi_Standard(L, b, np.zeros(10))
-    print(x)
-
-
-def Jacobi_Standard(A, b, x0):
-    D = np.diag(np.diag(A))
-    U = np.triu(A) - D
-    L = np.tril(A) - D
-
-    return _General_Iterative_Method(A, b, x0, D, L + U, max_iterations=9999999, sig=1e-5, w=0.35)
+    x0 = np.array([[0],
+                   [0],
+                   [0],
+                   [0],
+                   [0],
+                   [0],
+                   [0],
+                   [0],
+                   [0],
+                   [0]])
+    x = Jacobi(L, b, x0, max_iterations=1000, sigma=1e-5, w=0.9)
+    print("x: \n %s" % x)
 
 
 if __name__ == "__main__":
     #test_Jacobi()
     #test_Gauss_Seidel()
-    L = np.array([[2, -1, -1, 0, 0, 0, 0, 0, 0, 0],
+    L = np.array([[3, -1, -1, 0, 0, 0, 0, 0, 0, 0],
                   [-1, 2, -1, 0, 0, 0, 0, 0, 0, 0],
                   [-1, -1, 3, -1, 0, 0, 0, 0, 0, 0],
                   [0, 0, -1, 5, -1, 0, -1, 0, -1, -1],
