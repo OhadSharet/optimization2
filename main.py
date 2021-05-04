@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.sparse import random
 import scipy.sparse as sparse
+import matplotlib.pyplot as plt
 
 
 def ex1b():
@@ -9,9 +10,9 @@ def ex1b():
     b = np.random.rand(n, 1)
     x0 = np.array(np.zeros((n, 1), dtype=int))
     test_Jacobi(A, b, x0)
-    test_Gauss_Seidel(A, b, x0)
-    test_Steepest_Descent(A, b, x0)
-    test_Conjugate_Gradient(A, b, x0)
+    #test_Gauss_Seidel(A, b, x0)
+    #test_Steepest_Descent(A, b, x0)
+    #test_Conjugate_Gradient(A, b, x0)
 
 
 def _generate_matrix(n=256):
@@ -41,6 +42,18 @@ def test_Conjugate_Gradient(A, b, x0):
     print("Conjugate_Gradient x: \n %s" % x_ans)
 
 
+def print_graph(data_queue, total_iterations):
+    x = []
+    y = []
+    for i in range(total_iterations + 1):
+        x.append(i)
+        y.append(data_queue.pop(0))
+    fig, ax = plt.subplots()
+    ax.semilogy(x, y)
+    ax.set_title("residual")
+    plt.show()
+
+
 def _General_Iterative_Method(A, b, x0, M, N, max_iterations=99999, sigma=1e-2, w=1.0):
     """
     Ax = b , we need to find x
@@ -54,14 +67,18 @@ def _General_Iterative_Method(A, b, x0, M, N, max_iterations=99999, sigma=1e-2, 
     :return: x^k as the solution
     """
 
+    residual_queue = []
+    converges_queue = []
     last_x = x0
     M_inverse = np.linalg.inv(M)
     curr_iter = 0
     while curr_iter < max_iterations:
         curr_x = (1-w)*last_x + (w * M_inverse) @ (b - N @ last_x)
         c = np.linalg.norm(A @ curr_x - b, 2) / np.linalg.norm(b, 2)
+        residual_queue.append(c)
         print(c)
         if c < sigma:
+            print_graph(residual_queue, curr_iter)
             return curr_x
         last_x = curr_x
         curr_iter += 1
@@ -290,8 +307,8 @@ def ex4c():
 
 
 if __name__ == "__main__":
-    #ex1b()
+    ex1b()
     #ex3c()
     #ex4a()
     #ex4b()
-    ex4c()
+    #ex4c()
