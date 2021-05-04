@@ -10,9 +10,9 @@ def ex1b():
     b = np.random.rand(n, 1)
     x0 = np.array(np.zeros((n, 1), dtype=int))
     test_Jacobi(A, b, x0)
-    #test_Gauss_Seidel(A, b, x0)
-    #test_Steepest_Descent(A, b, x0)
-    #test_Conjugate_Gradient(A, b, x0)
+    test_Gauss_Seidel(A, b, x0)
+    test_Steepest_Descent(A, b, x0)
+    test_Conjugate_Gradient(A, b, x0)
 
 
 def _generate_matrix(n=256):
@@ -42,7 +42,7 @@ def test_Conjugate_Gradient(A, b, x0):
     print("Conjugate_Gradient x: \n %s" % x_ans)
 
 
-def print_graph(data_queue, total_iterations):
+def print_graph(data_queue, total_iterations,title = "residual"):
     x = []
     y = []
     for i in range(total_iterations + 1):
@@ -50,7 +50,7 @@ def print_graph(data_queue, total_iterations):
         y.append(data_queue.pop(0))
     fig, ax = plt.subplots()
     ax.semilogy(x, y)
-    ax.set_title("residual")
+    ax.set_title(title)
     plt.show()
 
 
@@ -75,10 +75,12 @@ def _General_Iterative_Method(A, b, x0, M, N, max_iterations=99999, sigma=1e-2, 
     while curr_iter < max_iterations:
         curr_x = (1-w)*last_x + (w * M_inverse) @ (b - N @ last_x)
         c = np.linalg.norm(A @ curr_x - b, 2) / np.linalg.norm(b, 2)
-        residual_queue.append(c)
+        converges_queue.append(np.linalg.norm(A @ curr_x - b, 2) / np.linalg.norm(A @ last_x - b, 2))
+        residual_queue.append(np.linalg.norm(A @ curr_x - b, 2))
         print(c)
         if c < sigma:
             print_graph(residual_queue, curr_iter)
+            print_graph(converges_queue,curr_iter,"converges")
             return curr_x
         last_x = curr_x
         curr_iter += 1
@@ -115,14 +117,20 @@ def Steepest_Descent(A, b, x0, max_iterations=99999, sigma=1e-2):
     last_x = x0
     last_r = b - A @ x0
     curr_iter = 0
+    residual_queue = []
+    converges_queue = []
     while curr_iter < max_iterations:
         Ar = A @ last_r
         alpha = (last_r.transpose() @ last_r) / (last_r.transpose() @ Ar)
         curr_x = last_x + alpha * last_r
         curr_r = last_r - alpha * Ar
         c = np.linalg.norm(A @ curr_x - b, 2) / np.linalg.norm(b, 2)
+        converges_queue.append(np.linalg.norm(A @ curr_x - b, 2) / np.linalg.norm(A @ last_x - b, 2))
+        residual_queue.append(np.linalg.norm(A @ curr_x - b, 2))
         print(c)
         if c < sigma:
+            print_graph(residual_queue, curr_iter)
+            print_graph(converges_queue,curr_iter,"converges")
             return curr_x
         last_x = curr_x
         last_r = curr_r
@@ -130,7 +138,7 @@ def Steepest_Descent(A, b, x0, max_iterations=99999, sigma=1e-2):
     return "failed"
 
 
-def Conjugate_Gradient(A, b, x0, max_iterations=99999, sigma=1e-2):
+def Conjugate_Gradient(A, b, x0, max_iterations=100, sigma=1e-2):
     """
     Ax = b , we need to find x
     :param A: matrix in R^(n*n) SPD
@@ -145,14 +153,19 @@ def Conjugate_Gradient(A, b, x0, max_iterations=99999, sigma=1e-2):
     last_r = b - A @ x0
     last_p = last_r
     curr_iter = 0
+    residual_queue = []
+    converges_queue = []
     while curr_iter < max_iterations:
         Ap = A @ last_p
         alpha = (last_r.transpose() @ last_r) / (last_p.transpose() @ Ap)
         curr_x = last_x + alpha * last_p
         curr_r = last_r - alpha * Ap
         c = np.linalg.norm(A @ curr_x - b, 2) / np.linalg.norm(b, 2)
-        print(c)
+        converges_queue.append(np.linalg.norm(A @ curr_x - b, 2) / np.linalg.norm(A @ last_x-b, 2))
+        residual_queue.append(np.linalg.norm(A @ curr_x - b, 2))
         if c < sigma:
+            print_graph(residual_queue, curr_iter)
+            print_graph(converges_queue, curr_iter, "converges")
             return curr_x
         beta = (curr_r.transpose() @ curr_r) / (last_r.transpose() @ last_r)
         last_p = curr_r + beta * last_p
